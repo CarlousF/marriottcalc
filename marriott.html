@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Marriott Points Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	<meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="true" />
+	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="https://openexchangerates.github.io/money.js/money.js"></script>
+	<script type="text/javascript">
+    // Load exchange rates data via AJAX:
+    $.getJSON(
+    	// NB: using Open Exchange Rates here, but you can use any source!
+        'https://openexchangerates.org/api/latest.json?app_id=09c00b27afe842c192f831e1748afd11',
+        function(data) {
+            // Check money.js has finished loading:
+            if ( typeof fx !== "undefined" && fx.rates ) {
+                fx.rates = data.rates;
+                fx.base = data.base;
+            } else {
+                // If not, apply to fxSetup global:
+                var fxSetup = {
+                    rates : data.rates,
+                    base : data.base
+                }
+            }
+        }
+    );
+	</script>
+	<script>
+
+	function bindClickEvent() {
+		$('.submit-button').on('click', function(e){
+			e.preventDefault();
+
+
+			//Reset CSS properties.
+			$('.spend').css('border-color', '');
+			$('.calculation').html('');
+			var totalSpendPounds = $('.spend').val(),
+				eliteStatus = $('select').val(),
+				eliteMultiplier = 1,
+				regex  = /^(?!0\.00)\d{1,5}(,\d{3})*(\.\d\d)?$/;
+
+			//Test if currency has been entered for total spend. Show error colour and shake container if incorrect.
+			if(!regex.test(totalSpendPounds)){
+				$('.spend').css('border-color', '#961327');
+				$('.container').css({ "position": "relative" });
+		        for (var x = 1; x <= 3; x++) {
+		            $('.container').animate({ left: -10 }, 10).animate({ left: 0 }, 50).animate({ left: 10 }, 10).animate({ left: 0 }, 50);
+		        }
+				return;
+			}
+
+			//Populate eliteMultiplier variable based on which Elite Status the user  holds.
+			switch (eliteStatus){
+				case 'None' : eliteMultiplier = 1; break;
+				case 'Silver' : eliteMultiplier = 1.2; break;
+				case 'Gold' : eliteMultiplier = 1.25; break;
+				case 'Platinum' : eliteMultiplier = 1.5; break;
+			}
+
+			var totalSpend = fx.convert(totalSpendPounds, {from: "GBP", to: "USD"}),
+				basePoints = Math.round(totalSpend * 10),
+				totalPoints = Math.round(basePoints * eliteMultiplier),
+				moreDetailString="";
+
+			if (eliteMultiplier != 1) {
+				moreDetailString = '('+numberWithCommas(basePoints)+' base points + '+numberWithCommas(totalPoints - basePoints)+' bonus points)';
+			}
+			$('.calculation').html('<p>'+numberWithCommas(totalPoints)+' points '+ moreDetailString+' </p>');
+		});
+	}
+
+	function numberWithCommas(x) {
+	    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
+	</script>
+	<style>
+		.btn {
+		  background: #961327;
+		  background-image: -webkit-linear-gradient(top, #961327, #b8213a);
+		  background-image: -moz-linear-gradient(top, #961327, #b8213a);
+		  background-image: -ms-linear-gradient(top, #961327, #b8213a);
+		  background-image: -o-linear-gradient(top, #961327, #b8213a);
+		  background-image: linear-gradient(to bottom, #961327, #b8213a);
+		  -webkit-border-radius: 4;
+		  -moz-border-radius: 4;
+		  border-radius: 4px;
+		  font-family: Arial;
+		  color: #ffffff;
+		  font-size: 20px;
+		  padding: 5px 10px 5px 10px;
+		  text-decoration: none;
+		}
+
+		.btn:hover {
+		  background: #992f41;
+		  background-image: -webkit-linear-gradient(top, #992f41, #4a2329);
+		  background-image: -moz-linear-gradient(top, #992f41, #4a2329);
+		  background-image: -ms-linear-gradient(top, #992f41, #4a2329);
+		  background-image: -o-linear-gradient(top, #992f41, #4a2329);
+		  background-image: linear-gradient(to bottom, #992f41, #4a2329);
+		  text-decoration: none;
+		  cursor: pointer;
+		}
+		body{
+			font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+		}
+		.container{
+			border-bottom-left-radius: 10px;
+			border-bottom-right-radius: 10px;
+			margin-left: 25%;
+			margin-right: 25%;
+			margin-top: 0;
+			border: solid;
+			border-width: 2px;
+			border-color: #9D0F24;
+		}
+		.nav-container {
+			border-bottom-left-radius: 10px;
+			border-bottom-right-radius: 10px;
+			background-color: #9D0F24;
+		}
+		.nav-container h1{
+			color: white;
+			font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+			padding-left: 20px;
+			-webkit-margin-before: 0;
+			margin-top: 0;
+		}
+		.nav-container p{
+			color: white;
+			font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+			padding-left: 20px;
+			-webkit-margin-before: 0;
+			padding-bottom: 10px;
+		}
+
+		.form-container{
+			margin-left: 10%;
+			margin-right: 20%;
+			width: 50%;
+			margin-bottom: 20px;
+		}
+		input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+		input[type="number"]{ 
+			display: inline-block;
+			width: 50%;
+			margin-bottom: 20px;
+			height: 25px;
+			font-size: 14px;
+		}
+		input[type="submit"]{
+			display: block;
+		}
+		label{ display: inline-block;}
+		select{
+			margin-bottom: 20px;
+		}
+		label{
+			margin-right: 20px;
+		}
+		.calculation{
+			color: green;
+			font-weight: bold;
+		}
+		.calculation-container{
+			margin-left: 10%;
+    		margin-right: 20%;
+		}
+		.spend-container { display: block; }
+		img { background-color: white; height: 30px; display: inline-block; border-radius: 20px; margin-right: 10px;}
+	@media only screen and (max-width: 980px) {
+		.container{ margin: 0;}
+		.form-container, .calculation-container { display: block; width: 100%; margin-right: 0;}
+		.form-container, .calculation-container { width: 85%;}
+ 		.calculation-container {
+			margin-left: 10%;
+			margin-right: 20%;
+		}
+		input{ width: 100%;}
+		input[type="submit"]{width: 50%;  }
+		.calculation{ padding-left: 0;}
+		h1{ padding-top: 5px;}
+	}
+	</style>
+</head>
+<body onload="bindClickEvent()">
+	<div class="container">
+		<div class="nav-container">
+			<h1><img alt="Marriott Logo" src="https://www.emarketing360.com/isaleskit/Marriott/images/Marriott-Logo_02.png">Marriott Points Calculator</h1>
+			<p>Calculate how much your total spend at a Marriott Hotel would convert into Marriott Reward Points. </p><p>Simply enter your total spend in GBP (&pound;), select your elite status, and hit calculate!</p>
+		</div>
+		<div class="form-container">
+			<form onsubmit="return false">
+				<div class="spend-container">
+					<label id="total-label">Total Spend:</label>
+					<input class="spend" type="number" name="spend" placeholder="Total Spend (&pound;)">
+				</div>
+				<label id="elite-label">Elite Status:</label>
+				<select>
+				  <option value="None">None</option>
+				  <option value="Silver">Silver</option>
+				  <option value="Gold">Gold</option>
+				  <option value="Platinum">Platinum</option>
+				</select>
+				<input type="submit" class="submit-button btn" value="Calculate">
+			</form>
+		</div>
+		<div class="calculation-container">
+			<div class="calculation"></div>
+		</div>
+	</div>
+</body>
+</html>
