@@ -1,5 +1,5 @@
 # marriottcalc
-A web application for converting total spend at a Marriott hotel into the equivalent Marriott Reward points. Marriott Hotel’s do not currently offer such a calculator on their website, so thought this could be a fun little project. Currently hosting on my Google Drive account: https://d8dcec9d435bdcbd2e26321906b41e1053ebb3cf-www.googledrive.com/host/0B6k9n87kS4x0OEVyNDczbkltSE0.
+A web application for converting total spend at a Marriott hotel into the equivalent Marriott Reward points. Marriott Hotel’s do not currently offer such a calculator on their website, so thought this could be a fun little project.
 
 All JavaScript and CSS is inline. JS library dependancies and images are served from external URL’s. 
 
